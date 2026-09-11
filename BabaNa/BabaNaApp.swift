@@ -1,5 +1,6 @@
 import SwiftUI
 import FirebaseCore
+import FirebaseAuth
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(
@@ -9,7 +10,12 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     ) -> Bool {
 
         FirebaseApp.configure()
+        
+        try? Auth.auth().signOut()
+        
         return true
+        
+        
     }
 }
 
