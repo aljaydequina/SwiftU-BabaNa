@@ -216,6 +216,7 @@ struct RegisterView: View {
         isCreatingAccount = true
 
         authService.register(
+            fullName: cleanName,
             email: cleanEmail,
             password: password
         ) { _ in

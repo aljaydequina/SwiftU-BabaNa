@@ -1,41 +1,37 @@
 import SwiftUI
 import FirebaseCore
-import FirebaseAuth
+import Combine
 
-class AppDelegate: NSObject, UIApplicationDelegate {
-    func application(
-        _ application: UIApplication,
-        didFinishLaunchingWithOptions launchOptions:
-            [UIApplication.LaunchOptionsKey: Any]? = nil
-    ) -> Bool {
+final class AppServices: ObservableObject {
+    let appState: AppState
+    let auth: AuthService
+    let location: LocationManager
+    let notifications: NotificationManager
+    let monitor: TripMonitor
 
-        FirebaseApp.configure()
-        
-        try? Auth.auth().signOut()
-        
-        return true
-        
-        
+    init() {
+        // Configure before constructing AuthService, rather than racing AppDelegate startup.
+        if FirebaseApp.app() == nil { FirebaseApp.configure() }
+        appState = AppState()
+        auth = AuthService()
+        location = LocationManager()
+        notifications = NotificationManager()
+        monitor = TripMonitor(appState: appState, location: location, notifications: notifications)
     }
 }
 
 @main
 struct BabaNaApp: App {
-    @UIApplicationDelegateAdaptor(AppDelegate.self)
-    var delegate
-
-    @StateObject private var appState = AppState()
-    @StateObject private var authService = AuthService()
-    @StateObject private var locationManager = LocationManager()
-    @StateObject private var notificationManager = NotificationManager()
+    @StateObject private var services = AppServices()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(appState)
-                .environmentObject(authService)
-                .environmentObject(locationManager)
-                .environmentObject(notificationManager)
+                .environmentObject(services.appState)
+                .environmentObject(services.auth)
+                .environmentObject(services.location)
+                .environmentObject(services.notifications)
+                .environmentObject(services.monitor)
         }
     }
 }

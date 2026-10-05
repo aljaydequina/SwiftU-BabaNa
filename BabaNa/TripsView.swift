@@ -8,6 +8,7 @@ struct TripsView: View {
         case all = "All"
         case completed = "Completed"
         case cancelled = "Cancelled"
+        case interrupted = "Interrupted"
     }
 
     private var filteredTrips: [TripRecord] {
@@ -18,6 +19,8 @@ struct TripsView: View {
             return appState.trips.filter { $0.status == .completed }
         case .cancelled:
             return appState.trips.filter { $0.status == .cancelled }
+        case .interrupted:
+            return appState.trips.filter { $0.status == .interrupted }
         }
     }
 

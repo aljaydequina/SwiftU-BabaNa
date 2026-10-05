@@ -1,189 +1,82 @@
 import SwiftUI
+import MapKit
+import UIKit
 
 struct SetTripView: View {
     @EnvironmentObject var appState: AppState
-
+    @EnvironmentObject var locationManager: LocationManager
+    @EnvironmentObject var notificationManager: NotificationManager
+    @EnvironmentObject var monitor: TripMonitor
     let destination: Destination
-
-    @State private var selectedDistance: Double = 1000
-    @State private var showCustomDistance = false
+    @State private var selectedDistance = 1000.0
+    @State private var showActiveTrip = false
+    @State private var errorMessage: String?
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                HStack(spacing: 12) {
-                    Image(systemName: "mappin.circle.fill")
-                        .font(.title2)
-                        .foregroundStyle(BabaNaTheme.green)
-
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text("Destination")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-
-                        Text(destination.name)
-                            .font(.headline)
-                    }
-
-                    Spacer()
-                }
-                .padding(16)
-                .background(Color(uiColor: .secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 14))
-
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Reminder distance")
-                        .font(.headline)
-
-                    Text("Choose how early you want to be reminded.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-
-                VStack(spacing: 0) {
-                    distanceButton(title: "500 meters", subtitle: "Closer reminder", meters: 500)
-                    Divider().padding(.leading, 48)
-                    distanceButton(title: "1 kilometer", subtitle: "Recommended", meters: 1000)
-                    Divider().padding(.leading, 48)
-                    distanceButton(title: "2 kilometers", subtitle: "Earlier reminder", meters: 2000)
-                    Divider().padding(.leading, 48)
-
-                    Button {
-                        showCustomDistance = true
-                    } label: {
-                        HStack(spacing: 12) {
-                            Image(systemName: "slider.horizontal.3")
-                                .foregroundStyle(BabaNaTheme.green)
-                                .frame(width: 24)
-
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text("Custom distance")
-                                    .foregroundStyle(.primary)
-                                    .font(.subheadline.weight(.semibold))
-
-                                Text("Set your own range")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-
-                            Spacer()
-
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundStyle(.tertiary)
-                        }
-                        .padding(15)
-                    }
-                    .buttonStyle(.plain)
-                }
-                .background(Color(uiColor: .secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 14))
-
-                NavigationLink {
-                    ActiveTripView()
-                } label: {
-                    Text("Start Trip")
-                        .fontWeight(.semibold)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 15)
-                        .background(BabaNaTheme.green)
-                        .foregroundStyle(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-                .simultaneousGesture(TapGesture().onEnded {
-                    appState.selectedDestination = destination
-                    appState.selectedReminderDistance = selectedDistance
-                    appState.startTrip()
-                })
-                .padding(.top, 4)
+        Form {
+            Section("Destination") {
+                DestinationRow(destination: destination, icon: "mappin.circle.fill")
+                Map {
+                    Marker(destination.name, coordinate: destination.coordinate)
+                }.frame(height: 180)
+                Text("Check that this pin is your actual drop-off point before starting.")
+                    .font(.caption).foregroundStyle(.secondary)
             }
-            .padding(18)
+            Section("Remind me within") {
+                Picker("Distance", selection: $selectedDistance) {
+                    Text("500 m").tag(500.0)
+                    Text("1 km").tag(1000.0)
+                    Text("2 km").tag(2000.0)
+                    if ![500.0, 1000.0, 2000.0].contains(selectedDistance) {
+                        Text(TripRules.distanceText(selectedDistance)).tag(selectedDistance)
+                    }
+                }
+                Slider(value: $selectedDistance, in: 200...5000, step: 100)
+                Text("Selected: \(TripRules.distanceText(selectedDistance))")
+                Text("Distance is measured in a straight line, not along the road. Arrival is within 150 m of the pin.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+            if !locationManager.isAuthorized || !notificationManager.isAuthorized {
+                Section("Permissions needed") {
+                    if !locationManager.isAuthorized {
+                        Button("Allow Location") { locationManager.requestPermission() }
+                    }
+                    if !notificationManager.isAuthorized {
+                        Button("Allow Notifications") { notificationManager.requestPermission() }
+                    }
+                    Button("Open iPhone Settings") { openSettings() }
+                }
+            }
+            if locationManager.reducedAccuracy {
+                Section {
+                    Text("Enable Precise Location in iPhone Settings so reminders can work near your stop.")
+                    Button("Open iPhone Settings") { openSettings() }
+                }
+            }
+            Section {
+                if appState.isTripActive {
+                    NavigationLink("Return to active trip") { ActiveTripView() }
+                    Text("End your current trip before starting another.").font(.caption)
+                } else {
+                    Button("Start Trip") {
+                        errorMessage = monitor.start(destination: destination, reminderMeters: selectedDistance)
+                        if errorMessage == nil { showActiveTrip = true }
+                    }
+                    .disabled(!locationManager.isAuthorized || !notificationManager.isAuthorized || locationManager.reducedAccuracy)
+                }
+                if let errorMessage { Text(errorMessage).foregroundStyle(.red) }
+            } footer: {
+                Text("Keep BabaNa running during your trip. Do not swipe it away. GPS and notification delivery depend on your iPhone's settings and signal.")
+            }
         }
-        .background(BabaNaTheme.background)
         .navigationTitle("Set Trip")
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(isPresented: $showCustomDistance) {
-            CustomDistanceView(distance: $selectedDistance)
-        }
-    }
-
-    private func distanceButton(title: String, subtitle: String, meters: Double) -> some View {
-        Button {
-            selectedDistance = meters
-        } label: {
-            HStack(spacing: 12) {
-                Image(systemName: selectedDistance == meters ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(selectedDistance == meters ? BabaNaTheme.green : .secondary)
-                    .frame(width: 24)
-
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(title)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.primary)
-
-                    Text(subtitle)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                Spacer()
-            }
-            .padding(15)
-        }
-        .buttonStyle(.plain)
+        .navigationDestination(isPresented: $showActiveTrip) { ActiveTripView() }
+        .onAppear { notificationManager.refreshAuthorization(); locationManager.refreshAuthorization() }
     }
 }
 
-struct CustomDistanceView: View {
-    @Environment(\.dismiss) private var dismiss
-    @Binding var distance: Double
-
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 28) {
-                Spacer()
-
-                Image(systemName: "bell.and.waves.left.and.right.fill")
-                    .font(.system(size: 42))
-                    .foregroundStyle(BabaNaTheme.green)
-
-                Text("Choose your distance")
-                    .font(.title2.bold())
-
-                Text(distanceText)
-                    .font(.system(size: 38, weight: .bold))
-                    .foregroundStyle(BabaNaTheme.green)
-
-                Slider(value: $distance, in: 200...5000, step: 100)
-                    .tint(BabaNaTheme.green)
-                    .padding(.horizontal, 8)
-
-                Spacer()
-
-                Button {
-                    dismiss()
-                } label: {
-                    Text("Use This Distance")
-                        .fontWeight(.semibold)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 15)
-                        .background(BabaNaTheme.green)
-                        .foregroundStyle(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-            }
-            .padding(22)
-            .background(BabaNaTheme.background)
-            .navigationTitle("Custom Reminder")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-
-    private var distanceText: String {
-        if distance < 1000 {
-            return "\(Int(distance)) m"
-        } else {
-            return String(format: "%.1f km", distance / 1000)
-        }
-    }
+func openSettings() {
+    guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+    UIApplication.shared.open(url)
 }

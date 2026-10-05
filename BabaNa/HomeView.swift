@@ -4,176 +4,86 @@ import MapKit
 struct HomeView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var locationManager: LocationManager
-
-    @State private var cameraPosition: MapCameraPosition = .region(
-        MKCoordinateRegion(
-            center: CLLocationCoordinate2D(latitude: 13.9430, longitude: 121.6120),
-            span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-        )
-    )
+    @State private var camera: MapCameraPosition = .automatic
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 22) {
-                header
-
-                NavigationLink {
-                    SearchDestinationView()
-                } label: {
-                    HStack(spacing: 10) {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundStyle(.secondary)
-
-                        Text("Search destination")
-                            .foregroundStyle(.secondary)
-
-                        Spacer()
+            VStack(alignment: .leading, spacing: 20) {
+                Text("Where are you getting off?").font(.largeTitle.bold())
+                if let notice = appState.notice {
+                    Label(notice, systemImage: "exclamationmark.circle").font(.subheadline)
+                }
+                if let error = appState.storageError {
+                    Label(error, systemImage: "externaldrive.badge.exclamationmark").foregroundStyle(.red)
+                }
+                if let trip = appState.activeTrip {
+                    NavigationLink { ActiveTripView() } label: {
+                        Label("Active trip: \(trip.destination.name)", systemImage: "location.fill")
+                            .fontWeight(.semibold).frame(maxWidth: .infinity, alignment: .leading)
+                            .padding().background(BabaNaTheme.softGreen)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
-                    .padding(.horizontal, 14)
-                    .frame(height: 48)
-                    .background(Color(uiColor: .secondarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                } else if let destination = appState.arrivalDestination {
+                    Label("You arrived near \(destination.name). Your trip has been saved.", systemImage: "checkmark.circle.fill")
+                        .foregroundStyle(BabaNaTheme.green)
                 }
-                .buttonStyle(.plain)
-
-                Map(position: $cameraPosition) {
-                    if let coordinate = locationManager.currentLocation?.coordinate {
-                        Annotation("You", coordinate: coordinate) {
-                            Circle()
-                                .fill(.blue)
-                                .frame(width: 15, height: 15)
-                                .overlay(Circle().stroke(.white, lineWidth: 3))
-                        }
-                    }
+                NavigationLink { SearchDestinationView() } label: {
+                    Label("Search destination", systemImage: "magnifyingglass")
+                        .frame(maxWidth: .infinity, alignment: .leading).padding()
+                        .background(Color(uiColor: .secondarySystemGroupedBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-                .frame(height: 205)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
-                .onAppear {
-                    locationManager.startUpdatingLocation()
+                Map(position: $camera) { UserAnnotation() }
+                    .frame(height: 210).clipShape(RoundedRectangle(cornerRadius: 16))
+                Text("Recent Destinations").font(.headline)
+                if appState.recentDestinations.isEmpty {
+                    Text("Destinations will appear here after you start a trip.").foregroundStyle(.secondary)
                 }
-
-                sectionTitle("Recent Destinations")
-
-                VStack(spacing: 0) {
-                    ForEach(Array(Destination.samples.prefix(3).enumerated()), id: \.element.id) { index, destination in
-                        NavigationLink {
-                            SetTripView(destination: destination)
-                        } label: {
-                            DestinationRow(destination: destination, icon: "clock")
-                        }
-                        .buttonStyle(.plain)
-
-                        if index < 2 {
-                            Divider().padding(.leading, 56)
-                        }
-                    }
+                ForEach(appState.recentDestinations.prefix(5)) { destination in
+                    NavigationLink { SetTripView(destination: destination) } label: {
+                        DestinationRow(destination: destination, icon: "clock")
+                    }.buttonStyle(.plain)
                 }
-                .background(Color(uiColor: .secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 14))
-
                 HStack {
-                    sectionTitle("Saved Stops")
+                    Text("Saved Stops").font(.headline)
                     Spacer()
-
-                    NavigationLink("See all") {
-                        SavedStopsView()
-                    }
-                    .font(.caption.weight(.semibold))
+                    NavigationLink("See all") { SavedStopsView() }
                 }
-
-                HStack(spacing: 12) {
-                    ForEach(appState.savedStops.prefix(2)) { stop in
-                        NavigationLink {
-                            SetTripView(destination: stop.destination)
-                        } label: {
-                            VStack(alignment: .leading, spacing: 10) {
-                                Image(systemName: stop.icon)
-                                    .font(.title3)
-                                    .foregroundStyle(BabaNaTheme.green)
-
-                                Text(stop.label)
-                                    .font(.headline)
-                                    .foregroundStyle(.primary)
-
-                                Text(stop.destination.name)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                                    .lineLimit(2)
-                            }
-                            .frame(maxWidth: .infinity, minHeight: 112, alignment: .topLeading)
-                            .padding(14)
-                            .background(Color(uiColor: .secondarySystemGroupedBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 14))
-                        }
-                        .buttonStyle(.plain)
-                    }
+                if appState.savedStops.isEmpty {
+                    Text("Save your home, school, or usual stop from the Saved tab.").foregroundStyle(.secondary)
                 }
-            }
-            .padding(.horizontal, 18)
-            .padding(.top, 12)
-            .padding(.bottom, 24)
+                ForEach(appState.savedStops.prefix(3)) { stop in
+                    NavigationLink { SetTripView(destination: stop.destination) } label: {
+                        VStack(alignment: .leading) {
+                            Label(stop.label, systemImage: stop.icon).font(.headline)
+                            Text(stop.destination.name).font(.caption).foregroundStyle(.secondary)
+                        }.frame(maxWidth: .infinity, alignment: .leading).padding()
+                    }.buttonStyle(.plain)
+                }
+            }.padding(18)
         }
         .background(BabaNaTheme.background)
-        .navigationBarHidden(true)
-    }
-
-    private var header: some View {
-        HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 3) {
-                Text("GOOD MORNING")
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(BabaNaTheme.green)
-
-                Text("Where are you\ngetting off?")
-                    .font(.system(size: 29, weight: .bold))
-                    .tracking(-0.4)
-            }
-
-            Spacer()
-
-            Button {} label: {
-                Image(systemName: "bell")
-                    .font(.headline)
-                    .foregroundStyle(.primary)
-                    .frame(width: 40, height: 40)
-                    .background(Color(uiColor: .secondarySystemGroupedBackground))
-                    .clipShape(Circle())
-            }
+        .navigationTitle("BabaNa")
+        .navigationBarTitleDisplayMode(.inline)
+        .task { locationManager.requestCurrentLocation() }
+        .onReceive(locationManager.$currentLocation) { fix in
+            guard let fix else { return }
+            camera = .region(MKCoordinateRegion(center: fix.coordinate,
+                                                latitudinalMeters: 3000, longitudinalMeters: 3000))
         }
-    }
-
-    private func sectionTitle(_ text: String) -> some View {
-        Text(text)
-            .font(.headline)
     }
 }
 
 struct DestinationRow: View {
     let destination: Destination
     let icon: String
-
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: icon)
-                .foregroundStyle(BabaNaTheme.green)
-                .frame(width: 32)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(destination.name)
-                    .font(.subheadline.weight(.semibold))
-
-                Text(destination.subtitle)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+            Image(systemName: icon).foregroundStyle(BabaNaTheme.green).frame(width: 28)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(destination.name).font(.subheadline.weight(.semibold)).foregroundStyle(.primary)
+                Text(destination.subtitle).font(.caption).foregroundStyle(.secondary).lineLimit(2)
             }
-
-            Spacer()
-
-            Image(systemName: "chevron.right")
-                .font(.caption2)
-                .foregroundStyle(.tertiary)
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 13)
+        }.padding(.vertical, 8)
     }
 }
