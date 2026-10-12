@@ -41,6 +41,8 @@ final class TripMonitor: ObservableObject {
     func start(destination: Destination, reminderMeters: Double) -> String? {
         guard !appState.isTripActive else { return "End your current trip before starting another one." }
         guard location.isAuthorized else { return "Allow location access before starting your trip." }
+        guard !location.reducedAccuracy else { return "Enable Precise Location in Settings before starting your trip." }
+        guard location.hasBackgroundConfiguration else { return "Background location is missing from this build. Use the included BabaNa.xcodeproj." }
         guard notifications.isAuthorized else { return "Allow notifications before starting your trip." }
         guard appState.startTrip(destination: destination, reminderMeters: reminderMeters) else {
             return "This trip could not be started. Check your destination and reminder distance."

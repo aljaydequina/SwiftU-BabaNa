@@ -26,6 +26,7 @@ final class NotificationManager: NSObject, ObservableObject, UNUserNotificationC
     }
 
     func requestPermission() {
+        if authorizationStatus == .denied { openSettings(); return }
         center.requestAuthorization(options: [.alert, .sound, .badge]) { [weak self] _, error in
             DispatchQueue.main.async {
                 self?.errorMessage = error?.localizedDescription

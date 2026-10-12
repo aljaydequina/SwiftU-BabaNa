@@ -14,7 +14,7 @@ struct MainTabView: View {
                 TripsView()
             }
             .tabItem {
-                Label("Trips", systemImage: "clock.fill")
+                Label("History", systemImage: "clock.fill")
             }
 
             NavigationStack {

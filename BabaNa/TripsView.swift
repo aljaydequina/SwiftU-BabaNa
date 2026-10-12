@@ -26,31 +26,36 @@ struct TripsView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            Picker("Filter", selection: $filter) {
-                ForEach(TripFilter.allCases, id: \.self) { item in
-                    Text(item.rawValue).tag(item)
-                }
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(TripFilter.allCases, id: \.self) { item in
+                        Button { filter = item } label: {
+                            Text(item.rawValue).font(.subheadline.weight(.semibold))
+                                .padding(.horizontal, 16).frame(minHeight: 44)
+                                .foregroundStyle(filter == item ? Color.white : BabaNaTheme.green)
+                                .background(filter == item ? BabaNaTheme.forest : BabaNaTheme.softGreen, in: Capsule())
+                        }.buttonStyle(.plain)
+                            .accessibilityAddTraits(filter == item ? [.isSelected] : [])
+                    }
+                }.padding(.horizontal, 20)
             }
-            .pickerStyle(.segmented)
-            .padding(.horizontal, 16)
-            .padding(.top, 4)
 
             if filteredTrips.isEmpty {
                 Spacer()
 
                 ContentUnavailableView(
-                    "No trips yet",
+                    filter == .all ? "No trips yet" : "No \(filter.rawValue.lowercased()) trips",
                     systemImage: "bus",
-                    description: Text("Your trip history will appear here.")
+                    description: Text(filter == .all ? "Start a trip and your ride history will appear here." : "Choose another filter to view your rides.")
                 )
 
                 Spacer()
             } else {
                 List(filteredTrips) { trip in
                     HStack(spacing: 13) {
-                        Image(systemName: trip.status == .completed ? "checkmark" : "xmark")
+                        Image(systemName: trip.status == .completed ? "checkmark" : (trip.status == .interrupted ? "exclamationmark" : "xmark"))
                             .font(.caption.bold())
-                            .foregroundStyle(trip.status == .completed ? BabaNaTheme.green : .red)
+                            .foregroundStyle(trip.status == .completed ? BabaNaTheme.green : (trip.status == .interrupted ? .orange : .secondary))
                             .frame(width: 34, height: 34)
                             .background(
                                 trip.status == .completed
@@ -76,7 +81,7 @@ struct TripsView: View {
 
                         Text(trip.status.rawValue)
                             .font(.caption2.weight(.semibold))
-                            .foregroundStyle(trip.status == .completed ? BabaNaTheme.green : .red)
+                            .foregroundStyle(trip.status == .completed ? BabaNaTheme.green : (trip.status == .interrupted ? .orange : .secondary))
                     }
                     .padding(.vertical, 5)
                 }
@@ -85,7 +90,7 @@ struct TripsView: View {
             }
         }
         .background(BabaNaTheme.background)
-        .navigationTitle("Trips")
+        .navigationTitle("Ride history")
     }
 
     private func reminderText(_ meters: Double) -> String {

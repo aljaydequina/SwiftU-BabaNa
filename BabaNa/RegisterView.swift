@@ -92,7 +92,7 @@ struct RegisterView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 15)
-                    .background(BabaNaTheme.green)
+                    .background(BabaNaTheme.forest)
                     .foregroundStyle(.white)
                     .clipShape(
                         RoundedRectangle(

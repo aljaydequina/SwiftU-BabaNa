@@ -14,6 +14,7 @@
 		8325B4CC30514F7C008D65AA /* BabaNa.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BabaNa.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8325B4DC30514FCF008D65AA /* BabaNa Project.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "BabaNa Project.xcodeproj"; sourceTree = "<group>"; };
 		83430A8830527D7A003E40CA /* BabaNa Project.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "BabaNa Project.xcodeproj"; sourceTree = "<group>"; };
+		837616AD307CDC300062F8F8 /* BabaNa Project.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "BabaNa Project.xcodeproj"; sourceTree = "<group>"; };
 		83844D113053917D006FCBA6 /* BabaNa Project.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "BabaNa Project.xcodeproj"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -61,6 +62,13 @@
 			sourceTree = "<group>";
 		};
 		83430A9A30527D7A003E40CA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		837616C4307CDC300062F8F8 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 			);
@@ -134,6 +142,10 @@
 				{
 					ProductGroup = 8325B4DE30514FCF008D65AA /* Products */;
 					ProjectRef = 8325B4DC30514FCF008D65AA /* BabaNa Project.xcodeproj */;
+				},
+				{
+					ProductGroup = 837616C4307CDC300062F8F8 /* Products */;
+					ProjectRef = 837616AD307CDC300062F8F8 /* BabaNa Project.xcodeproj */;
 				},
 				{
 					ProductGroup = 83430A9A30527D7A003E40CA /* Products */;
@@ -298,8 +310,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 855SD23U6N;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Configuration/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -329,8 +343,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 855SD23U6N;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Configuration/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

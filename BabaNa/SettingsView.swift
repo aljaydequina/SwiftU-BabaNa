@@ -1,4 +1,5 @@
 import SwiftUI
+import UserNotifications
 import FirebaseAuth
 
 struct SettingsView: View {
@@ -26,11 +27,12 @@ struct SettingsView: View {
                 Text("Lock-screen vibration, sound, and notification visibility follow your iPhone's notification, silent mode, and Focus settings.")
             }
             Section("Permissions") {
+                Text(locationManager.permissionDetail).font(.caption).foregroundStyle(.secondary)
                 LabeledContent("Location", value: locationManager.isAuthorized ? "Allowed" : "Not allowed")
-                LabeledContent("Precise Location", value: locationManager.reducedAccuracy ? "Off" : "On")
+                LabeledContent("Precise Location", value: !locationManager.isAuthorized ? "Not available" : (locationManager.reducedAccuracy ? "Off" : "On"))
                 LabeledContent("Notifications", value: notificationManager.isAuthorized ? "Allowed" : "Not allowed")
-                Button("Request Location Access") { locationManager.requestPermission() }
-                Button("Request Notification Access") { notificationManager.requestPermission() }
+                Button(locationManager.permissionAction) { locationManager.requestPermission() }
+                Button(notificationManager.authorizationStatus == .denied ? "Notification Settings" : "Allow Notifications") { notificationManager.requestPermission() }
                 Button("Open iPhone Settings") { openSettings() }
             }
             Section {
@@ -45,7 +47,7 @@ struct SettingsView: View {
             }
             Section("About") {
                 LabeledContent("App", value: "BabaNa")
-                LabeledContent("Version", value: "0.6")
+                LabeledContent("Version", value: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—")
                 Text("Trips and saved stops are stored on this iPhone separately for each account. They are not synced between devices.")
                     .font(.caption)
                 Text("Distances are straight-line estimates. Keep BabaNa running during a trip; force-quitting stops reminders.")

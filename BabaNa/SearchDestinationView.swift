@@ -1,5 +1,7 @@
 import SwiftUI
 
 struct SearchDestinationView: View {
-    var body: some View { DestinationSearchView() }
+    var body: some View {
+        DestinationSearchView()
+    }
 }

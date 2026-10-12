@@ -7,18 +7,26 @@ struct SavedStopsView: View {
         List {
             if appState.savedStops.isEmpty {
                 ContentUnavailableView("No saved stops", systemImage: "heart",
-                                       description: Text("Tap + to save your home, school, or usual stop."))
+                                       description: Text("Keep your home, school, and everyday stops one tap away."))
+                Button { showAddStop = true } label: { Label("Save your first stop", systemImage: "plus") }
+                    .buttonStyle(BabaNaPrimaryButtonStyle()).listRowBackground(Color.clear)
             }
             ForEach(appState.savedStops) { stop in
                 NavigationLink { SetTripView(destination: stop.destination) } label: {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Label(stop.label, systemImage: stop.icon).font(.headline)
-                        Text(stop.destination.name).font(.caption).foregroundStyle(.secondary)
-                    }.padding(.vertical, 6)
+                    HStack(spacing: 14) {
+                        Image(systemName: stop.icon).foregroundStyle(BabaNaTheme.green)
+                            .frame(width: 44, height: 44).background(BabaNaTheme.softGreen, in: RoundedRectangle(cornerRadius: 14))
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(stop.label).font(.headline)
+                            Text(stop.destination.name).font(.caption).foregroundStyle(.secondary)
+                        }
+                    }.padding(.vertical, 8)
                 }
             }.onDelete { appState.savedStops.remove(atOffsets: $0) }
         }
-        .navigationTitle("Saved Stops")
+        .scrollContentBackground(.hidden)
+        .background(BabaNaTheme.background)
+        .navigationTitle("Saved stops")
         .toolbar { Button { showAddStop = true } label: { Image(systemName: "plus") }.accessibilityLabel("Add saved stop") }
         .sheet(isPresented: $showAddStop) { AddSavedStopView() }
     }

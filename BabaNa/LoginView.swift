@@ -16,7 +16,7 @@ struct LoginView: View {
                 VStack(alignment: .leading, spacing: 24) {
 
                     Spacer()
-                        .frame(height: 50)
+                        .frame(height: 24)
 
                     HStack(spacing: 10) {
                         Image(systemName: "bus.fill")
@@ -34,7 +34,7 @@ struct LoginView: View {
                                 weight: .bold
                             ))
 
-                        Text("Log in to continue your trip.")
+                        Text("Your stop, without the worry. Log in to plan your ride.")
                             .foregroundStyle(.secondary)
                     }
 
@@ -128,7 +128,7 @@ struct LoginView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 15)
-                        .background(BabaNaTheme.green)
+                        .background(BabaNaTheme.forest)
                         .foregroundStyle(.white)
                         .clipShape(
                             RoundedRectangle(

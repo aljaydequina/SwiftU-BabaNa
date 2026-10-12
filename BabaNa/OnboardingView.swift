@@ -1,4 +1,5 @@
 import SwiftUI
+import UserNotifications
 import CoreLocation
 
 struct OnboardingView: View {
@@ -30,7 +31,7 @@ private struct WelcomeView: View {
 
     var body: some View {
         ZStack {
-            BabaNaTheme.green
+            BabaNaTheme.forest
                 .ignoresSafeArea()
 
             VStack(alignment: .leading, spacing: 0) {
@@ -82,7 +83,7 @@ private struct WelcomeView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 15)
                         .background(.white)
-                        .foregroundStyle(BabaNaTheme.green)
+                        .foregroundStyle(BabaNaTheme.forest)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
                 .padding(.top, 26)
@@ -127,7 +128,7 @@ private struct PermissionView: View {
                 permissionRow(
                     icon: "bell.fill",
                     title: "Notifications",
-                    subtitle: notificationManager.isAuthorized ? "Allowed" : "Tap to allow",
+                    subtitle: notificationManager.isAuthorized ? "Allowed" : (notificationManager.authorizationStatus == .denied ? "Open Settings to allow" : "Tap to allow"),
                     action: { notificationManager.requestPermission() }
                 )
             }
@@ -141,7 +142,7 @@ private struct PermissionView: View {
                     .fontWeight(.semibold)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 15)
-                    .background(BabaNaTheme.green)
+                    .background(BabaNaTheme.forest)
                     .foregroundStyle(.white)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
@@ -186,9 +187,9 @@ private struct PermissionView: View {
     private var locationText: String {
         switch locationManager.authorizationStatus {
         case .authorizedAlways, .authorizedWhenInUse:
-            return "Allowed"
+            return locationManager.reducedAccuracy ? "Enable Precise Location in Settings" : "Allowed"
         case .denied, .restricted:
-            return "Permission denied"
+            return "Open Settings to review access"
         default:
             return "Tap to allow"
         }
