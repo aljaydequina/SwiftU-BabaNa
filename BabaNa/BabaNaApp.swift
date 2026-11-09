@@ -10,7 +10,6 @@ final class AppServices: ObservableObject {
     let monitor: TripMonitor
 
     init() {
-        // Configure before constructing AuthService, rather than racing AppDelegate startup.
         if FirebaseApp.app() == nil { FirebaseApp.configure() }
         appState = AppState()
         auth = AuthService()
@@ -26,12 +25,38 @@ struct BabaNaApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            EmergencyAlertRootView()
                 .environmentObject(services.appState)
                 .environmentObject(services.auth)
                 .environmentObject(services.location)
                 .environmentObject(services.notifications)
                 .environmentObject(services.monitor)
         }
+    }
+}
+
+private struct EmergencyAlertRootView: View {
+    @EnvironmentObject private var notifications: NotificationManager
+
+    var body: some View {
+        ZStack {
+            ContentView()
+
+            if let alert = notifications.emergencyAlert {
+                Color.black.opacity(0.38)
+                    .ignoresSafeArea()
+                    .transition(.opacity)
+                    .zIndex(1)
+
+                EmergencyAlertView(alert: alert) {
+                    notifications.acknowledgeEmergency()
+                }
+                .frame(maxWidth: 390)
+                .padding(.horizontal, 22)
+                .transition(.scale(scale: 0.94).combined(with: .opacity))
+                .zIndex(2)
+            }
+        }
+        .animation(.spring(response: 0.35, dampingFraction: 0.84), value: notifications.emergencyAlert?.id)
     }
 }

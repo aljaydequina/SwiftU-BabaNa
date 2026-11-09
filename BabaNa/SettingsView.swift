@@ -21,10 +21,10 @@ struct SettingsView: View {
                 if !authService.errorMessage.isEmpty { Text(authService.errorMessage).foregroundStyle(.red) }
             }
             Section {
-                Toggle("Alert Sound", isOn: $soundEnabled)
+                Toggle("Emergency Alarm Sound", isOn: $soundEnabled)
                 Toggle("Vibrate While App Is Open", isOn: $vibrationEnabled)
             } header: { Text("Trip Alerts") } footer: {
-                Text("Lock-screen vibration, sound, and notification visibility follow your iPhone's notification, silent mode, and Focus settings.")
+                Text("An emergency-style alarm repeats while the app is open until acknowledged. On the lock screen, the custom alert sound plays once and follows iOS notification, silent mode, and Focus settings. This is not an official NDRRMC or Critical Alert.")
             }
             Section("Permissions") {
                 Text(locationManager.permissionDetail).font(.caption).foregroundStyle(.secondary)
@@ -36,7 +36,7 @@ struct SettingsView: View {
                 Button("Open iPhone Settings") { openSettings() }
             }
             Section {
-                Button("Test Notification in 5 Seconds") {
+                Button("Test Emergency Alarm in 5 Seconds") {
                     notificationManager.sendTestNotification()
                     testScheduled = true
                 }.disabled(!notificationManager.isAuthorized)
@@ -45,10 +45,15 @@ struct SettingsView: View {
                 }
                 if let error = notificationManager.errorMessage { Text(error).foregroundStyle(.red) }
             }
+            Section("Data Sync") {
+                LabeledContent("Cloud Firestore", value: appState.cloudSyncStatus)
+                Text("Your active GPS trip remains on this iPhone; saved stops and trip history sync to your account.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
             Section("About") {
                 LabeledContent("App", value: "BabaNa")
                 LabeledContent("Version", value: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—")
-                Text("Trips and saved stops are stored on this iPhone separately for each account. They are not synced between devices.")
+                Text("Saved stops and trip history are stored locally and synced to your Firebase account using Cloud Firestore when online.")
                     .font(.caption)
                 Text("Distances are straight-line estimates. Keep BabaNa running during a trip; force-quitting stops reminders.")
                     .font(.caption)

@@ -13,6 +13,10 @@ final class AppState: ObservableObject {
     @Published var storageError: String?
 
     private let storage: TripStorage
+    private let cloud = FirestoreTripStore()
+    @Published private(set) var cloudSyncStatus = "Not connected"
+    private var cloudReady = false
+    private var changedDuringCloudLoad = false
     private var userID: String?
     private var isLoadingAccount = false
 
@@ -22,6 +26,9 @@ final class AppState: ObservableObject {
     func loadAccount(_ id: String?) {
         guard id != userID else { return }
         isLoadingAccount = true
+        cloudReady = false
+        changedDuringCloudLoad = false
+        cloudSyncStatus = id == nil ? "Not connected" : "Loading cloud data…"
         userID = id
         let snapshot: TripSnapshot
         do {
@@ -48,6 +55,34 @@ final class AppState: ObservableObject {
         }
         isLoadingAccount = false
         if snapshot.activeTrip != nil { persist() }
+        guard let id else { return }
+        cloud.load(userID: id) { [weak self] result in
+            guard let self, self.userID == id else { return }
+            self.cloudReady = true
+            switch result {
+            case .failure(let error):
+                self.cloudSyncStatus = "Cloud unavailable: \(error.localizedDescription)"
+                // Local data remains intact; subsequent changes will retry cloud writes.
+                if self.changedDuringCloudLoad { self.persist() }
+            case .success(let remote):
+                if self.changedDuringCloudLoad {
+                    // Don't replace actions made on this device while the download was pending.
+                    self.persist()
+                } else if let remote {
+                    self.isLoadingAccount = true
+                    self.hasFinishedOnboarding = remote.hasFinishedOnboarding
+                    self.savedStops = remote.savedStops
+                    self.trips = remote.trips
+                    self.recentDestinations = remote.recentDestinations
+                    self.isLoadingAccount = false
+                    self.cloudSyncStatus = "Synced with Firestore"
+                    self.persistLocalOnly()
+                } else {
+                    // First cloud login: migrate the existing per-user local snapshot.
+                    self.persist()
+                }
+            }
+        }
     }
 
     @discardableResult
@@ -86,15 +121,34 @@ final class AppState: ObservableObject {
                                     icon: icon, destination: destination))
     }
 
-    private func persist() {
-        guard !isLoadingAccount, let userID, storageError == nil else { return }
+    private func snapshot() -> TripSnapshot {
+        TripSnapshot(hasFinishedOnboarding: hasFinishedOnboarding,
+                     savedStops: savedStops, trips: trips,
+                     recentDestinations: recentDestinations,
+                     activeTrip: activeTrip)
+    }
+
+    private func persistLocalOnly() {
+        guard !isLoadingAccount, let userID else { return }
         do {
-            try storage.save(TripSnapshot(hasFinishedOnboarding: hasFinishedOnboarding,
-                                          savedStops: savedStops, trips: trips,
-                                          recentDestinations: recentDestinations,
-                                          activeTrip: activeTrip), userID: userID)
+            try storage.save(snapshot(), userID: userID)
+            storageError = nil
         } catch {
-            storageError = "Changes could not be saved on this iPhone. Check available storage and reopen the app."
+            storageError = "Changes could not be saved on this iPhone. Check available storage."
+        }
+    }
+
+    private func persist() {
+        guard !isLoadingAccount, let userID else { return }
+        persistLocalOnly()
+        guard cloudReady else {
+            changedDuringCloudLoad = true
+            return
+        }
+        cloud.save(snapshot(), userID: userID) { [weak self] error in
+            guard let self, self.userID == userID else { return }
+            self.cloudSyncStatus = error.map { "Cloud sync failed: \($0.localizedDescription)" }
+                ?? "Synced with Firestore"
         }
     }
 }

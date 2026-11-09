@@ -8,6 +8,7 @@ final class AuthService: ObservableObject {
     @Published var errorMessage = ""
 
     private var authStateHandle: AuthStateDidChangeListenerHandle?
+    private let cloud = FirestoreTripStore()
 
     init() {
         authStateHandle = Auth.auth().addStateDidChangeListener { [weak self] _, user in
@@ -57,9 +58,11 @@ final class AuthService: ObservableObject {
                 profile.displayName = fullName.trimmingCharacters(in: .whitespacesAndNewlines)
                 profile.commitChanges { [weak self] error in
                     DispatchQueue.main.async {
-                        self?.user = user
+                        guard let self else { completion(false); return }
+                        self.user = user
+                        self.cloud.saveProfile(userID: user.uid, displayName: user.displayName ?? fullName, email: user.email ?? cleanEmail)
                         if let error {
-                            self?.errorMessage = "Account created, but your name could not be saved: \(error.localizedDescription)"
+                            self.errorMessage = "Account created, but your name could not be saved: \(error.localizedDescription)"
                         }
                         completion(true)
                     }
@@ -92,6 +95,9 @@ final class AuthService: ObservableObject {
                 }
 
                 self?.user = result?.user
+                if let user = result?.user {
+                    self?.cloud.saveProfile(userID: user.uid, displayName: user.displayName ?? "", email: user.email ?? cleanEmail)
+                }
                 completion(true)
             }
         }

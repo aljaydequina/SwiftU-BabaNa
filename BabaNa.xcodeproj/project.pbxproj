@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8378307F30A1BFF1003DF8EE /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 8378307E30A1BFF1003DF8EE /* FirebaseFirestore */; };
 		83844D3E30539686006FCBA6 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 83844D3D30539686006FCBA6 /* FirebaseAuth */; };
 /* End PBXBuildFile section */
 
@@ -15,6 +16,7 @@
 		8325B4DC30514FCF008D65AA /* BabaNa Project.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "BabaNa Project.xcodeproj"; sourceTree = "<group>"; };
 		83430A8830527D7A003E40CA /* BabaNa Project.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "BabaNa Project.xcodeproj"; sourceTree = "<group>"; };
 		837616AD307CDC300062F8F8 /* BabaNa Project.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "BabaNa Project.xcodeproj"; sourceTree = "<group>"; };
+		8378303830A1A226003DF8EE /* BabaNa Project.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "BabaNa Project.xcodeproj"; sourceTree = "<group>"; };
 		83844D113053917D006FCBA6 /* BabaNa Project.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "BabaNa Project.xcodeproj"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -32,6 +34,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				83844D3E30539686006FCBA6 /* FirebaseAuth in Frameworks */,
+				8378307F30A1BFF1003DF8EE /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -42,6 +45,7 @@
 			isa = PBXGroup;
 			children = (
 				8325B4CE30514F7C008D65AA /* BabaNa */,
+				8378307D30A1BFF1003DF8EE /* Frameworks */,
 				8325B4CD30514F7C008D65AA /* Products */,
 			);
 			sourceTree = "<group>";
@@ -75,6 +79,20 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		8378304F30A1A226003DF8EE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		8378307D30A1BFF1003DF8EE /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		83844D223053917D006FCBA6 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -103,6 +121,7 @@
 			name = BabaNa;
 			packageProductDependencies = (
 				83844D3D30539686006FCBA6 /* FirebaseAuth */,
+				8378307E30A1BFF1003DF8EE /* FirebaseFirestore */,
 			);
 			productName = BabaNa;
 			productReference = 8325B4CC30514F7C008D65AA /* BabaNa.app */;
@@ -150,6 +169,10 @@
 				{
 					ProductGroup = 83430A9A30527D7A003E40CA /* Products */;
 					ProjectRef = 83430A8830527D7A003E40CA /* BabaNa Project.xcodeproj */;
+				},
+				{
+					ProductGroup = 8378304F30A1A226003DF8EE /* Products */;
+					ProjectRef = 8378303830A1A226003DF8EE /* BabaNa Project.xcodeproj */;
 				},
 				{
 					ProductGroup = 83844D223053917D006FCBA6 /* Products */;
@@ -404,6 +427,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		8378307E30A1BFF1003DF8EE /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 83844D3C30539686006FCBA6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
 		83844D3D30539686006FCBA6 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 83844D3C30539686006FCBA6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

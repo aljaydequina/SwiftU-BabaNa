@@ -2,12 +2,59 @@ import Foundation
 import UserNotifications
 import UIKit
 import Combine
+import AVFoundation
+
+struct EmergencyTripAlert: Identifiable {
+    let id: String
+    let title: String
+    let message: String
+}
 
 final class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterDelegate {
     @Published private(set) var isAuthorized = false
     @Published private(set) var authorizationStatus: UNAuthorizationStatus = .notDetermined
     @Published private(set) var errorMessage: String?
     private let center = UNUserNotificationCenter.current()
+    @Published var emergencyAlert: EmergencyTripAlert?
+    private var alarmPlayer: AVAudioPlayer?
+    private let alarmFilename = "BabaNaAlert.wav"
+
+    private var soundEnabled: Bool { UserDefaults.standard.object(forKey: "soundEnabled") as? Bool ?? true }
+
+    private func notificationSound() -> UNNotificationSound? {
+        soundEnabled ? UNNotificationSound(named: UNNotificationSoundName(rawValue: alarmFilename)) : nil
+    }
+
+    private func displayEmergency(_ notification: UNNotification) {
+        let content = notification.request.content
+        emergencyAlert = EmergencyTripAlert(id: notification.request.identifier,
+                                            title: content.title, message: content.body)
+        if UserDefaults.standard.object(forKey: "vibrationEnabled") as? Bool ?? true {
+            UINotificationFeedbackGenerator().notificationOccurred(.warning)
+        }
+        startAlarm()
+    }
+
+    private func startAlarm() {
+        alarmPlayer?.stop()
+        alarmPlayer = nil
+        guard soundEnabled, let url = Bundle.main.url(forResource: "BabaNaAlert", withExtension: "wav") else { return }
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers])
+            try AVAudioSession.sharedInstance().setActive(true)
+            let player = try AVAudioPlayer(contentsOf: url)
+            player.numberOfLoops = -1 // Foreground alert repeats until acknowledged.
+            player.prepareToPlay()
+            player.play()
+            alarmPlayer = player
+        } catch { errorMessage = "Could not play alert sound: \(error.localizedDescription)" }
+    }
+
+    func acknowledgeEmergency() {
+        alarmPlayer?.stop()
+        alarmPlayer = nil
+        emergencyAlert = nil
+    }
 
     override init() {
         super.init()
@@ -42,7 +89,8 @@ final class NotificationManager: NSObject, ObservableObject, UNUserNotificationC
             ? "You are within 150 m of \(trip.destination.name). Check your stop and prepare to get off."
             : "You are within \(TripRules.distanceText(trip.reminderMeters)) of \(trip.destination.name)."
         content.threadIdentifier = "BabaNaTrips"
-        if UserDefaults.standard.object(forKey: "soundEnabled") as? Bool ?? true { content.sound = .default }
+        content.interruptionLevel = .timeSensitive
+        content.sound = notificationSound()
         let request = UNNotificationRequest(identifier: "trip-\(trip.id.uuidString)-\(alert.rawValue)",
                                              content: content, trigger: nil)
         center.getNotificationSettings { [weak self] settings in
@@ -68,7 +116,8 @@ final class NotificationManager: NSObject, ObservableObject, UNUserNotificationC
         let content = UNMutableNotificationContent()
         content.title = "BabaNa test reminder"
         content.body = "Trip notifications are working. This is only a test."
-        if UserDefaults.standard.object(forKey: "soundEnabled") as? Bool ?? true { content.sound = .default }
+        content.sound = notificationSound()
+        content.interruptionLevel = .timeSensitive
         center.add(UNNotificationRequest(identifier: "babana-test",
                                          content: content,
                                          trigger: UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false))) { [weak self] error in
@@ -83,17 +132,25 @@ final class NotificationManager: NSObject, ObservableObject, UNUserNotificationC
     }
 
     func clearAllTripNotifications() {
+        acknowledgeEmergency()
         center.removeAllPendingNotificationRequests()
         center.removeAllDeliveredNotifications()
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification,
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        DispatchQueue.main.async {
-            if UserDefaults.standard.object(forKey: "vibrationEnabled") as? Bool ?? true {
-                UINotificationFeedbackGenerator().notificationOccurred(.warning)
-            }
-            completionHandler(notification.request.content.sound == nil ? [.banner, .list] : [.banner, .list, .sound])
+        DispatchQueue.main.async { [weak self] in
+            self?.displayEmergency(notification)
+            // Playback is handled by the looping in-app alarm to avoid playing two sounds at once.
+            completionHandler([.banner, .list])
+        }
+    }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse,
+                                withCompletionHandler completionHandler: @escaping () -> Void) {
+        DispatchQueue.main.async { [weak self] in
+            self?.displayEmergency(response.notification)
+            completionHandler()
         }
     }
 }
