@@ -9,7 +9,32 @@
 /* Begin PBXBuildFile section */
 		8378307F30A1BFF1003DF8EE /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 8378307E30A1BFF1003DF8EE /* FirebaseFirestore */; };
 		83844D3E30539686006FCBA6 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 83844D3D30539686006FCBA6 /* FirebaseAuth */; };
+		BABA0A0000000000000000A5 /* BabaNaWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = BABA0A0000000000000000A2 /* BabaNaWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		BABA0A0000000000000000A7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8325B4C430514F7C008D65AA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BABA0A0000000000000000A1;
+			remoteInfo = BabaNaWidgetsExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		BABA0A0000000000000000A6 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				BABA0A0000000000000000A5 /* BabaNaWidgetsExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		8325B4CC30514F7C008D65AA /* BabaNa.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BabaNa.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -18,12 +43,23 @@
 		837616AD307CDC300062F8F8 /* BabaNa Project.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "BabaNa Project.xcodeproj"; sourceTree = "<group>"; };
 		8378303830A1A226003DF8EE /* BabaNa Project.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "BabaNa Project.xcodeproj"; sourceTree = "<group>"; };
 		83844D113053917D006FCBA6 /* BabaNa Project.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "BabaNa Project.xcodeproj"; sourceTree = "<group>"; };
+		BABA0A0000000000000000A2 /* BabaNaWidgetsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BabaNaWidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		8325B4CE30514F7C008D65AA /* BabaNa */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = BabaNa;
+			sourceTree = "<group>";
+		};
+		BABA0A0000000000000000A3 /* BabaNaWidgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = BabaNaWidgets;
+			sourceTree = "<group>";
+		};
+		BABA0A0000000000000000A4 /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -38,6 +74,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BABA0A0000000000000000AA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -45,6 +88,8 @@
 			isa = PBXGroup;
 			children = (
 				8325B4CE30514F7C008D65AA /* BabaNa */,
+				BABA0A0000000000000000A4 /* Shared */,
+				BABA0A0000000000000000A3 /* BabaNaWidgets */,
 				8378307D30A1BFF1003DF8EE /* Frameworks */,
 				8325B4CD30514F7C008D65AA /* Products */,
 			);
@@ -54,6 +99,7 @@
 			isa = PBXGroup;
 			children = (
 				8325B4CC30514F7C008D65AA /* BabaNa.app */,
+				BABA0A0000000000000000A2 /* BabaNaWidgetsExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -110,13 +156,16 @@
 				8325B4C830514F7C008D65AA /* Sources */,
 				8325B4C930514F7C008D65AA /* Frameworks */,
 				8325B4CA30514F7C008D65AA /* Resources */,
+				BABA0A0000000000000000A6 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				BABA0A0000000000000000A8 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				8325B4CE30514F7C008D65AA /* BabaNa */,
+				BABA0A0000000000000000A4 /* Shared */,
 			);
 			name = BabaNa;
 			packageProductDependencies = (
@@ -126,6 +175,29 @@
 			productName = BabaNa;
 			productReference = 8325B4CC30514F7C008D65AA /* BabaNa.app */;
 			productType = "com.apple.product-type.application";
+		};
+		BABA0A0000000000000000A1 /* BabaNaWidgetsExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BABA0A0000000000000000AC /* Build configuration list for PBXNativeTarget "BabaNaWidgetsExtension" */;
+			buildPhases = (
+				BABA0A0000000000000000A9 /* Sources */,
+				BABA0A0000000000000000AA /* Frameworks */,
+				BABA0A0000000000000000AB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				BABA0A0000000000000000A3 /* BabaNaWidgets */,
+				BABA0A0000000000000000A4 /* Shared */,
+			);
+			name = BabaNaWidgetsExtension;
+			packageProductDependencies = (
+			);
+			productName = BabaNaWidgetsExtension;
+			productReference = BABA0A0000000000000000A2 /* BabaNaWidgetsExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -138,6 +210,9 @@
 				LastUpgradeCheck = 2660;
 				TargetAttributes = {
 					8325B4CB30514F7C008D65AA = {
+						CreatedOnToolsVersion = 26.6;
+					};
+					BABA0A0000000000000000A1 = {
 						CreatedOnToolsVersion = 26.6;
 					};
 				};
@@ -182,12 +257,20 @@
 			projectRoot = "";
 			targets = (
 				8325B4CB30514F7C008D65AA /* BabaNa */,
+				BABA0A0000000000000000A1 /* BabaNaWidgetsExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		8325B4CA30514F7C008D65AA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BABA0A0000000000000000AB /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -204,7 +287,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BABA0A0000000000000000A9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		BABA0A0000000000000000A8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BABA0A0000000000000000A1 /* BabaNaWidgetsExtension */;
+			targetProxy = BABA0A0000000000000000A7 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		8325B4D530514F7D008D65AA /* Debug */ = {
@@ -392,6 +490,62 @@
 			};
 			name = Release;
 		};
+		BABA0A0000000000000000AD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 855SD23U6N;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Configuration/BabaNaWidgets-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = BabaNa;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = mseuf.BabaNa.BabaNaWidgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		BABA0A0000000000000000AE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 855SD23U6N;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Configuration/BabaNaWidgets-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = BabaNa;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = mseuf.BabaNa.BabaNaWidgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -409,6 +563,15 @@
 			buildConfigurations = (
 				8325B4D830514F7D008D65AA /* Debug */,
 				8325B4D930514F7D008D65AA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BABA0A0000000000000000AC /* Build configuration list for PBXNativeTarget "BabaNaWidgetsExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BABA0A0000000000000000AD /* Debug */,
+				BABA0A0000000000000000AE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

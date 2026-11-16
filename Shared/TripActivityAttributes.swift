@@ -2,7 +2,7 @@ import Foundation
 import ActivityKit
 
 // Shared by the app and the BabaNaWidgets extension.
-// In Xcode, tick BOTH targets under File Inspector > Target Membership.
+// The Shared folder belongs to both targets in the Xcode project.
 // `nonisolated` keeps the Codable conformances usable outside the main actor
 // (the app target uses MainActor as its default isolation).
 nonisolated struct TripActivityAttributes: ActivityAttributes {
