@@ -24,7 +24,7 @@ struct SettingsView: View {
                 Toggle("Reminder Alarm Sound", isOn: $soundEnabled)
                 Toggle("Vibrate While App Is Open", isOn: $vibrationEnabled)
             } header: { Text("Trip Alerts") } footer: {
-                Text("While the app is open, the reminder alarm repeats until you tap Okay. On the lock screen, the custom alert sound plays once and follows iOS notification, silent mode, and Focus settings. This is not an official NDRRMC or Critical Alert.")
+                Text("During a trip, the reminder alarm keeps ringing, even on the Lock Screen and in Silent mode, until you tap Stop alarm or Okay. It stops by itself after 3 minutes. Keep BabaNa running; swiping it away stops trip monitoring. The 5-second test rings fully only while the app is open. This is not an official NDRRMC or Critical Alert.")
             }
             Section("Permissions") {
                 Text(locationManager.permissionDetail).font(.caption).foregroundStyle(.secondary)

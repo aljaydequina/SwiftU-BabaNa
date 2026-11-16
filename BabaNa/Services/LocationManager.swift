@@ -93,11 +93,17 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     func startUpdatingLocation() {
         guard isAuthorized, hasBackgroundConfiguration else { return }
         wantsTripUpdates = true
-        currentLocation = nil
+        // Keep a fix from the last few seconds so the trip shows a distance at once.
+        if let fix = currentLocation, -fix.timestamp.timeIntervalSinceNow > TripRules.startGraceSeconds {
+            currentLocation = nil
+        }
         locationError = nil
         isLocating = true
         manager.allowsBackgroundLocationUpdates = true
         manager.showsBackgroundLocationIndicator = true
+        // Deliver every fix during a trip. With a 10 m filter, a rider who is
+        // already standing near the stop never gets a fresh fix, so no alarm.
+        manager.distanceFilter = kCLDistanceFilterNone
         manager.startUpdatingLocation()
     }
 
@@ -106,6 +112,7 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
         isLocating = false
         manager.stopUpdatingLocation()
         manager.allowsBackgroundLocationUpdates = false
+        manager.distanceFilter = 10
     }
 
     func distance(to destination: Destination) -> Double? {

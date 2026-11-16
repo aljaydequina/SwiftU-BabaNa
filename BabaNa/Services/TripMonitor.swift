@@ -57,6 +57,8 @@ final class TripMonitor: ObservableObject {
         pendingAlert = nil
         if let trip = appState.activeTrip { liveActivity.start(trip: trip) }
         location.startUpdatingLocation()
+        // Check right away with the recent fix instead of waiting for the next one.
+        if let fix = location.currentLocation { process(fix) }
         return nil
     }
 
@@ -65,7 +67,7 @@ final class TripMonitor: ObservableObject {
         let target = CLLocation(latitude: trip.destination.latitude, longitude: trip.destination.longitude)
         let distance = fix.distance(from: target)
         if TripRules.acceptsLocation(accuracy: fix.horizontalAccuracy, timestamp: fix.timestamp, now: Date()),
-           fix.timestamp >= trip.startedAt {
+           TripRules.isFix(at: fix.timestamp, usableFor: trip) {
             liveActivity.update(distance: distance, reminderMeters: trip.reminderMeters,
                                 approachingSent: trip.didSendApproachingAlert)
         }
