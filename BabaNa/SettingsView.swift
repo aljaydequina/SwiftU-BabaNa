@@ -21,10 +21,10 @@ struct SettingsView: View {
                 if !authService.errorMessage.isEmpty { Text(authService.errorMessage).foregroundStyle(.red) }
             }
             Section {
-                Toggle("Emergency Alarm Sound", isOn: $soundEnabled)
+                Toggle("Reminder Alarm Sound", isOn: $soundEnabled)
                 Toggle("Vibrate While App Is Open", isOn: $vibrationEnabled)
             } header: { Text("Trip Alerts") } footer: {
-                Text("An emergency-style alarm repeats while the app is open until acknowledged. On the lock screen, the custom alert sound plays once and follows iOS notification, silent mode, and Focus settings. This is not an official NDRRMC or Critical Alert.")
+                Text("While the app is open, the reminder alarm repeats until you tap Okay. On the lock screen, the custom alert sound plays once and follows iOS notification, silent mode, and Focus settings. This is not an official NDRRMC or Critical Alert.")
             }
             Section("Permissions") {
                 Text(locationManager.permissionDetail).font(.caption).foregroundStyle(.secondary)
@@ -36,7 +36,7 @@ struct SettingsView: View {
                 Button("Open iPhone Settings") { openSettings() }
             }
             Section {
-                Button("Test Emergency Alarm in 5 Seconds") {
+                Button("Test Reminder Alarm in 5 Seconds") {
                     notificationManager.sendTestNotification()
                     testScheduled = true
                 }.disabled(!notificationManager.isAuthorized)

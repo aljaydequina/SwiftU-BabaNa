@@ -9,6 +9,7 @@ final class TripMonitor: ObservableObject {
     private let notifications: NotificationManager
     private var subscriptions = Set<AnyCancellable>()
     private var pendingAlert: String?
+    private let liveActivity = TripLiveActivityManager()
 
     init(appState: AppState, location: LocationManager, notifications: NotificationManager) {
         self.appState = appState
@@ -26,6 +27,12 @@ final class TripMonitor: ObservableObject {
                 self.location.stopUpdatingLocation()
                 self.pendingAlert = nil
             }
+            .store(in: &subscriptions)
+        // Any way a trip ends (cancel, interruption, sign-out) removes the Live Activity.
+        // Arrival ends it earlier with a final "Baba na" state, so this is then a no-op.
+        appState.$activeTrip.map { $0?.id }.removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] id in if id == nil { self?.liveActivity.endImmediately() } }
             .store(in: &subscriptions)
         location.$authorizationStatus
             .receive(on: DispatchQueue.main)
@@ -48,6 +55,7 @@ final class TripMonitor: ObservableObject {
             return "This trip could not be started. Check your destination and reminder distance."
         }
         pendingAlert = nil
+        if let trip = appState.activeTrip { liveActivity.start(trip: trip) }
         location.startUpdatingLocation()
         return nil
     }
@@ -55,7 +63,13 @@ final class TripMonitor: ObservableObject {
     private func process(_ fix: CLLocation) {
         guard let trip = appState.activeTrip else { return }
         let target = CLLocation(latitude: trip.destination.latitude, longitude: trip.destination.longitude)
-        guard let alert = TripRules.alert(distance: fix.distance(from: target),
+        let distance = fix.distance(from: target)
+        if TripRules.acceptsLocation(accuracy: fix.horizontalAccuracy, timestamp: fix.timestamp, now: Date()),
+           fix.timestamp >= trip.startedAt {
+            liveActivity.update(distance: distance, reminderMeters: trip.reminderMeters,
+                                approachingSent: trip.didSendApproachingAlert)
+        }
+        guard let alert = TripRules.alert(distance: distance,
                                           accuracy: fix.horizontalAccuracy, timestamp: fix.timestamp,
                                           now: Date(), trip: trip) else { return }
         guard pendingAlert == nil else { return }
@@ -72,10 +86,12 @@ final class TripMonitor: ObservableObject {
             // Retry on the next valid GPS fix if scheduling failed.
             guard success else { return }
             if alert == .arrival {
+                self.liveActivity.finishArrived()
                 self.appState.endTrip(status: .completed)
                 self.location.stopUpdatingLocation()
             } else {
                 self.appState.markApproachingSent(tripID: trip.id)
+                self.liveActivity.markApproaching()
             }
         }
     }

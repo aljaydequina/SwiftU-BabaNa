@@ -43,7 +43,7 @@ private struct EmergencyAlertRootView: View {
             ContentView()
 
             if let alert = notifications.emergencyAlert {
-                Color.black.opacity(0.38)
+                Color.black.opacity(0.22)
                     .ignoresSafeArea()
                     .transition(.opacity)
                     .zIndex(1)
